@@ -1,10 +1,12 @@
 using Lab3_FullstackAuctionWebsite.Core.Interfaces;
 using Lab3_FullstackAuctionWebsite.Core.Services;
 using Lab3_FullstackAuctionWebsite.Data;
+using Lab3_FullstackAuctionWebsite.Data.Entities;
 using Lab3_FullstackAuctionWebsite.Data.Interfaces;
 using Lab3_FullstackAuctionWebsite.Data.Repos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
@@ -105,5 +107,6 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.MapControllers();
-
 app.Run();
+
+

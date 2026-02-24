@@ -8,7 +8,14 @@ namespace Lab3_FullstackAuctionWebsite.Data.Interfaces
 
         Task<Auction?> GetByIdAsync(int auctionId);
 
-        Task<List<Auction>> SearchByTitleAsync(string title);
+        // Search by book title
+        Task<List<Auction>> SearchByBookTitleAsync(string bookTitle);
+
+        // Search by author
+        Task<List<Auction>> SearchByAuthorAsync(string author);
+
+        // Filter by genre
+        Task<List<Auction>> GetByGenreAsync(string genre);
 
         Task AddAsync(Auction auction);
 
@@ -17,5 +24,7 @@ namespace Lab3_FullstackAuctionWebsite.Data.Interfaces
         Task<bool> HasBidsAsync(int auctionId);
 
         Task<Auction?> GetByIdWithUserAsync(int auctionId);
+
+        Task DeleteAsync(Auction auction);
     }
 }

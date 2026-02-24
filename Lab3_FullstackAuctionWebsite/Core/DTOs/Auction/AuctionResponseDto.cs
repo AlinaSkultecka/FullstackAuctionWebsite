@@ -6,11 +6,25 @@ namespace Lab3_FullstackAuctionWebsite.Core.DTOs.Auction
     {
         public int AuctionId { get; set; }
 
-        public string Title { get; set; } = string.Empty;
+        // ===== BOOK INFO =====
+
+        public string BookTitle { get; set; } = string.Empty;
+
+        public string Author { get; set; } = string.Empty;
+
+        public string? Genre { get; set; }
+
+        public string? Condition { get; set; }
+
+        public string? ImageUrl { get; set; }
 
         public string Description { get; set; } = string.Empty;
 
+        // ===== AUCTION INFO =====
+
         public decimal StartPrice { get; set; }
+
+        public decimal CurrentPrice { get; set; }
 
         public DateTime StartDate { get; set; }
 
@@ -18,11 +32,13 @@ namespace Lab3_FullstackAuctionWebsite.Core.DTOs.Auction
 
         public bool IsActive { get; set; }
 
-        public string CreatorUserName { get; set; } = string.Empty;
+        public bool IsOpen { get; set; }
 
         public decimal HighestBid { get; set; }
 
-        public bool IsOpen { get; set; }
+        public string CreatorUserName { get; set; } = string.Empty;
+
+        // ===== BIDS =====
 
         public List<BidResponseDto> Bids { get; set; } = new();
     }

@@ -22,8 +22,15 @@ namespace Lab3_FullstackAuctionWebsite.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterUserDto dto)
         {
-            var user = await _userService.RegisterAsync(dto);
-            return Ok(user);
+            try
+            {
+                var result = await _userService.RegisterAsync(dto);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // -------------------- LOGIN --------------------
@@ -65,10 +72,25 @@ namespace Lab3_FullstackAuctionWebsite.Controllers
             return Ok("Password updated successfully.");
         }
 
+        // -------------------- DELETE USER --------------------
+        [Authorize]
+        [HttpDelete("me")]
+        public async Task<IActionResult> DeleteMyself()
+        {
+            int userId = int.Parse(User.FindFirst("id")!.Value);
+
+            var success = await _userService.DeleteAsync(userId);
+
+            if (!success)
+                return NotFound();
+
+            return Ok("Your account has been deleted.");
+        }
+
         // -------------------- DEACTIVATE USER (ADMIN) --------------------
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("deactivate/{userId}")]
+        [HttpPut("deactivate/{userId:int}")]
         public async Task<IActionResult> Deactivate(int userId)
         {
             var success = await _userService.DeactivateAsync(userId);

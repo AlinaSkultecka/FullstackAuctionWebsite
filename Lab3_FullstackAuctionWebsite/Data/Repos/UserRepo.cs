@@ -22,20 +22,16 @@ namespace Lab3_FullstackAuctionWebsite.Data.Repos
             await _context.SaveChangesAsync();
         }
 
-        // -------------------- DELETE USER --------------------
-        // For auction system we SHOULD NOT hard delete.
-
-        public async Task DeleteUserAsync(int id)
+        public async Task<User?> GetByEmailAsync(string email)
         {
-            var user = await _context.Users
-                .SingleOrDefaultAsync(u => u.UserId == id);
+            return await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
 
-            if (user == null)
-                return;
-
-            // Soft delete instead of removing
-            user.IsActive = false;
-
+        // -------------------- DELETE USER --------------------
+        public async Task DeleteAsync(User user)
+        {
+            _context.Users.Remove(user);
             await _context.SaveChangesAsync();
         }
 

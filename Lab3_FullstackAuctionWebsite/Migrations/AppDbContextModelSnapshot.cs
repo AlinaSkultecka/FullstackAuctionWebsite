@@ -30,12 +30,40 @@ namespace Lab3_FullstackAuctionWebsite.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AuctionId"));
 
+                    b.Property<string>("Author")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("BookTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Condition")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("CurrentPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Genre")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ISBN")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -45,11 +73,6 @@ namespace Lab3_FullstackAuctionWebsite.Migrations
 
                     b.Property<decimal>("StartPrice")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -120,7 +143,24 @@ namespace Lab3_FullstackAuctionWebsite.Migrations
 
                     b.HasKey("UserId");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("UserName")
+                        .IsUnique();
+
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            Email = "admin@email.com",
+                            IsActive = true,
+                            IsAdmin = true,
+                            PasswordHash = "AQAAAAIAAYagAAAAEOgp0MxIv7GD8lviv7v7R9l + 6Ps9YoMDmG4jqdVlBhKzlT4EMuD6XQEehshsKo6MGg ==",
+                            UserName = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("Lab3_FullstackAuctionWebsite.Data.Entities.Auction", b =>

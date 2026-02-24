@@ -9,7 +9,7 @@ namespace Lab3_FullstackAuctionWebsite.Data.Entities
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
 
-        public DateTime BidDate { get; set; } = DateTime.Now;
+        public DateTime BidDate { get; set; } = DateTime.UtcNow;
 
         // Foreign Keys
         public int AuctionId { get; set; }

@@ -10,10 +10,12 @@ namespace Lab3_FullstackAuctionWebsite.Data.Interfaces
 
         Task UpdateUserAsync(User user);
 
-        Task DeleteUserAsync(int userId);
-
         Task<User?> GetByIdAsync(int userId);
 
         Task<User?> GetByUserNameAsync(string userName);
+
+        Task<User?> GetByEmailAsync(string email);
+
+        Task DeleteAsync(User user);
     }
 }

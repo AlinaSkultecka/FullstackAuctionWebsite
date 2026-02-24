@@ -9,7 +9,7 @@ namespace Lab3_FullstackAuctionWebsite.Core.Services
 {
     public class AuctionService : IAuctionService
     {
-        private const int AuctionDurationDays = 14;
+        private const int AuctionDurationDays = 1;
 
         private readonly IAuctionRepo _auctionRepo;
         private readonly IMapper _mapper;
@@ -66,43 +66,90 @@ namespace Lab3_FullstackAuctionWebsite.Core.Services
             return dto;
         }
 
-        // -------------------- SEARCH OPEN --------------------
-
-        public async Task<List<AuctionResponseDto>> SearchOpenAsync(string title)
+        // -------------------- SEARCH --------------------
+        public async Task<List<AuctionResponseDto>> SearchAsync(
+            string? bookTitle,
+            string? author,
+            string? genre,
+            bool? isActive)
         {
-            var auctions = await _auctionRepo.SearchByTitleAsync(title);
+            var auctions = await _auctionRepo.GetAllAsync();
 
-            var filtered = auctions
-                .Where(a => a.EndDate > DateTime.UtcNow && a.IsActive)
-                .ToList();
+            var now = DateTime.UtcNow;
 
-            return await GetMappedAuctions(filtered);
+            // Filter by BookTitle
+            if (!string.IsNullOrWhiteSpace(bookTitle))
+                auctions = auctions
+                    .Where(a => a.BookTitle.Contains(bookTitle))
+                    .ToList();
+
+            // Filter by Author
+            if (!string.IsNullOrWhiteSpace(author))
+                auctions = auctions
+                    .Where(a => a.Author.Contains(author))
+                    .ToList();
+
+            // Filter by Genre
+            if (!string.IsNullOrWhiteSpace(genre))
+                auctions = auctions
+                    .Where(a => a.Genre == genre)
+                    .ToList();
+
+            // Filter by Active/Open
+            if (isActive.HasValue)
+            {
+                if (isActive.Value)
+                {
+                    auctions = auctions
+                        .Where(a => a.EndDate > now && a.IsActive)
+                        .ToList();
+                }
+                else
+                {
+                    auctions = auctions
+                        .Where(a => a.EndDate <= now || !a.IsActive)
+                        .ToList();
+                }
+            }
+
+            return await GetMappedAuctions(auctions);
         }
 
         // -------------------- CREATE --------------------
 
         public async Task<AuctionResponseDto> CreateAsync(CreateAuctionDto dto, int userId)
         {
+            // Business rule: Start price must be positive
             if (dto.StartPrice <= 0)
                 throw new Exception("Start price must be greater than zero");
 
             var startDate = DateTime.UtcNow;
 
+            // Map DTO → Entity
             var auction = _mapper.Map<Auction>(dto);
 
+            // Set system-generated values
             auction.UserId = userId;
             auction.StartDate = startDate;
             auction.EndDate = startDate.AddDays(AuctionDurationDays);
             auction.IsActive = true;
 
+            // IMPORTANT for book auctions
+            auction.CurrentPrice = dto.StartPrice;
+
             await _auctionRepo.AddAsync(auction);
 
+            // Reload with User included
             var createdAuction = await _auctionRepo.GetByIdWithUserAsync(auction.AuctionId);
 
+            if (createdAuction == null)
+                throw new Exception("Auction could not be created.");
+
+            // Map to response DTO
             var response = _mapper.Map<AuctionResponseDto>(createdAuction);
 
             response.CreatorUserName = createdAuction.User.UserName;
-            response.HighestBid = createdAuction.StartPrice;
+            response.HighestBid = createdAuction.CurrentPrice;
             response.IsOpen = createdAuction.EndDate > DateTime.UtcNow && createdAuction.IsActive;
 
             return response;
@@ -110,7 +157,6 @@ namespace Lab3_FullstackAuctionWebsite.Core.Services
 
 
         // -------------------- UPDATE --------------------
-
         public async Task<bool> UpdateAsync(UpdateAuctionDto dto, int userId)
         {
             var auction = await _auctionRepo.GetByIdAsync(dto.AuctionId);
@@ -118,26 +164,47 @@ namespace Lab3_FullstackAuctionWebsite.Core.Services
             if (auction == null)
                 return false;
 
-            // Only owner can update
             if (auction.UserId != userId)
                 return false;
 
-            // Cannot update closed auction
             if (auction.EndDate < DateTime.UtcNow)
                 return false;
 
-            // Check price change rule
             var hasBids = await _auctionRepo.HasBidsAsync(dto.AuctionId);
 
             if (hasBids && dto.StartPrice != auction.StartPrice)
                 return false;
 
-            auction.Title = dto.Title;
+            // Book fields
+            auction.BookTitle = dto.BookTitle;
+            auction.Author = dto.Author;
+            auction.Genre = dto.Genre;
+            auction.Condition = dto.Condition;
+            auction.ImageUrl = dto.ImageUrl;
+
+            // Auction fields
             auction.Description = dto.Description;
             auction.EndDate = dto.EndDate;
             auction.StartPrice = dto.StartPrice;
 
             await _auctionRepo.UpdateAsync(auction);
+
+            return true;
+        }
+
+        // -------------------DELETE-------------------------
+        public async Task<bool> DeleteAsync(int auctionId, int userId)
+        {
+            var auction = await _auctionRepo.GetByIdAsync(auctionId);
+
+            if (auction == null)
+                return false;
+
+            // Only creator can delete
+            if (auction.UserId != userId)
+                return false;
+
+            await _auctionRepo.DeleteAsync(auction);
 
             return true;
         }

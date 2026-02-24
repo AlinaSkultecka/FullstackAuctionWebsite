@@ -37,6 +37,14 @@ namespace Lab3_FullstackAuctionWebsite.Core.Services
         {
             var user = _mapper.Map<User>(dto);
 
+            var existingUserName = await _userRepo.GetByUserNameAsync(dto.UserName);
+            if (existingUserName != null)
+                throw new Exception("Username already exists");
+
+            var existingEmail = await _userRepo.GetByEmailAsync(dto.Email);
+            if (existingEmail != null)
+                throw new Exception("Email already exists");
+
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
             user.IsActive = true;
             user.IsAdmin = false;
@@ -107,6 +115,19 @@ namespace Lab3_FullstackAuctionWebsite.Core.Services
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.NewPassword); ;
 
             await _userRepo.UpdateUserAsync(user);
+
+            return true;
+        }
+
+        // -------------------- DELETE USER --------------------
+        public async Task<bool> DeleteAsync(int userId)
+        {
+            var user = await _userRepo.GetByIdAsync(userId);
+
+            if (user == null)
+                return false;
+
+            await _userRepo.DeleteAsync(user);
 
             return true;
         }

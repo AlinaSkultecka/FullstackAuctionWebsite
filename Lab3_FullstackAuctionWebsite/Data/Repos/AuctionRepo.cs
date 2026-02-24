@@ -36,14 +36,36 @@ namespace Lab3_FullstackAuctionWebsite.Data.Repos
                 .SingleOrDefaultAsync(a => a.AuctionId == auctionId);
         }
 
-        // -------------------- SEARCH BY TITLE --------------------
+        // -------------------- SEARCH BY BOOK TITLE --------------------
 
-        public async Task<List<Auction>> SearchByTitleAsync(string title)
+        public async Task<List<Auction>> SearchByBookTitleAsync(string bookTitle)
         {
             return await _context.Auctions
                 .Include(a => a.User)
                 .Include(a => a.Bids)
-                .Where(a => a.Title.Contains(title))
+                .Where(a => a.BookTitle.Contains(bookTitle))
+                .ToListAsync();
+        }
+
+        // -------------------- SEARCH BY AUTHOR --------------------
+
+        public async Task<List<Auction>> SearchByAuthorAsync(string author)
+        {
+            return await _context.Auctions
+                .Include(a => a.User)
+                .Include(a => a.Bids)
+                .Where(a => a.Author.Contains(author))
+                .ToListAsync();
+        }
+
+        // -------------------- FILTER BY GENRE --------------------
+
+        public async Task<List<Auction>> GetByGenreAsync(string genre)
+        {
+            return await _context.Auctions
+                .Include(a => a.User)
+                .Include(a => a.Bids)
+                .Where(a => a.Genre == genre)
                 .ToListAsync();
         }
 
@@ -63,6 +85,14 @@ namespace Lab3_FullstackAuctionWebsite.Data.Repos
             await _context.SaveChangesAsync();
         }
 
+        // -------------------- DELETE --------------------
+
+        public async Task DeleteAsync(Auction auction)
+        {
+            _context.Auctions.Remove(auction);
+            await _context.SaveChangesAsync();
+        }
+
         // -------------------- CHECK IF HAS BIDS --------------------
 
         public async Task<bool> HasBidsAsync(int auctionId)
@@ -71,15 +101,15 @@ namespace Lab3_FullstackAuctionWebsite.Data.Repos
                 .AnyAsync(b => b.AuctionId == auctionId);
         }
 
+        // -------------------- GET BY ID WITH USER --------------------
 
-        public async Task<Auction> GetByIdWithUserAsync(int auctionId)
+        public async Task<Auction?> GetByIdWithUserAsync(int auctionId)
         {
             return await _context.Auctions
                 .Include(a => a.User)
                 .Include(a => a.Bids)
                 .FirstOrDefaultAsync(a => a.AuctionId == auctionId);
         }
-
     }
 }
 

@@ -28,7 +28,7 @@ namespace Lab3_FullstackAuctionWebsite.Controllers
 
         // -------------------- GET BY ID --------------------
 
-        [HttpGet("{auctionId}")]
+        [HttpGet("{auctionId:int}")]
         public async Task<IActionResult> GetById(int auctionId)
         {
             var auction = await _auctionService.GetByIdAsync(auctionId);
@@ -39,12 +39,18 @@ namespace Lab3_FullstackAuctionWebsite.Controllers
             return Ok(auction);
         }
 
-        // -------------------- SEARCH OPEN --------------------
+        // -------------------- SEARCH --------------------
 
         [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string title)
+        public async Task<IActionResult> Search([FromQuery] SearchAuctionDto query)
         {
-            var result = await _auctionService.SearchOpenAsync(title);
+            var result = await _auctionService.SearchAsync(
+                query.BookTitle,
+                query.Author,
+                query.Genre,
+                query.IsActive
+            );
+
             return Ok(result);
         }
 
@@ -75,6 +81,21 @@ namespace Lab3_FullstackAuctionWebsite.Controllers
                 return BadRequest("Update failed.");
 
             return Ok("Auction updated successfully.");
+        }
+
+        // -------------------- DELETE --------------------
+        [Authorize]
+        [HttpDelete("{auctionId:int}")]
+        public async Task<IActionResult> Delete(int auctionId)
+        {
+            int userId = int.Parse(User.FindFirst("id")!.Value);
+
+            var success = await _auctionService.DeleteAsync(auctionId, userId);
+
+            if (!success)
+                return NotFound();
+
+            return Ok("Auction deleted successfully.");
         }
 
         // -------------------- DEACTIVATE (ADMIN) --------------------

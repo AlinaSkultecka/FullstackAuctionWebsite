@@ -37,7 +37,7 @@ namespace Lab3_FullstackAuctionWebsite.Core.Services
                 return null;
 
             // Auction must be open
-            if (auction.EndDate < DateTime.Now)
+            if (auction.EndDate < DateTime.UtcNow)
                 return null;
 
             // User cannot bid on own auction

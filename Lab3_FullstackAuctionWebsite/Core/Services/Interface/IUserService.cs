@@ -1,4 +1,5 @@
 ﻿using Lab3_FullstackAuctionWebsite.Core.DTOs.User;
+using Lab3_FullstackAuctionWebsite.Data.Entities;
 
 namespace Lab3_FullstackAuctionWebsite.Core.Interfaces
 {
@@ -13,5 +14,8 @@ namespace Lab3_FullstackAuctionWebsite.Core.Interfaces
          Task<bool> UpdatePasswordAsync(int userId, UpdatePasswordDto dto);
 
          Task<bool> DeactivateAsync(int userId);
-     }
+
+         Task<bool> DeleteAsync(int userId);
+
+    }
 }
