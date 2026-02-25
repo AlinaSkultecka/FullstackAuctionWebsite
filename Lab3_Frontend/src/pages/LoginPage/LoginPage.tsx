@@ -1,6 +1,6 @@
 import { useState } from "react";
 import "./LoginPage.css";
-import logo from "../assets/logo.png";
+import logo from "../../assets/logo.png"; // Make sure to have a logo image in this path or adjust accordingly  
 
 /*
   LoginPage component
